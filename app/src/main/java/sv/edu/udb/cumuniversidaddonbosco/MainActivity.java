@@ -3,10 +3,13 @@ package sv.edu.udb.cumuniversidaddonbosco;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -16,10 +19,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.nio.channels.Channel;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
     EditText NumMaterias;
     Button btnIngresar;
     double  UM=0;
@@ -31,6 +36,39 @@ public class MainActivity extends AppCompatActivity {
     NotificationCompat.Builder notificacion;
     private static final int idunica=001;
 
+    private void setPendingIntent(Class<?> clsActivity)
+    {
+        Intent intent = new Intent(this,clsActivity);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(clsActivity);
+        stackBuilder.addNextIntent(intent);
+        stackBuilder.getPendingIntent(1,PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+  /*  private void showNotification(String msg)
+    {
+        NotificationChannel channel = new NotificationChannel(NotificationChannel.DEFAULT_CHANNEL_ID,"new",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        manager.createNotificationChannel(channel);
+        ShowNewNotification(msg);
+    }*/
+
+   /* private void ShowNewNotification(String msg)
+    {
+        setPendingIntent(HomeActivity.class);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(),
+                CHANNEL_ID).
+                setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Calculo de CUM - UDB")
+                .setContentText(msg)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent);
+
+        NotificationManagerCompat managerCompact =  NotificationManagerCompat.from(getApplicationContext());
+        managerCompact.notify(1,builder.build());
+
+    }*/
 
     EditText notas;
     EditText uv;
@@ -38,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        notificacion= new NotificationCompat.Builder(this);
+        notificacion= new NotificationCompat.Builder(getApplicationContext());
         notificacion.setAutoCancel(true);
         LinearLayout linearLayout =(LinearLayout) findViewById(R.id.layout);
         NumMaterias= (EditText) findViewById(R.id.NumeroMaterias);
@@ -94,17 +132,15 @@ public class MainActivity extends AppCompatActivity {
                             resultado.setText("CUM: "+(UM/TotalUV));
 
                         }
+
+                        setPendingIntent(MainActivity.class);
                         notificacion.setSmallIcon(R.mipmap.ic_launcher);
                         notificacion.setTicker("Registro del CUM");
                         notificacion.setPriority(Notification.PRIORITY_HIGH);
                         notificacion.setWhen(System.currentTimeMillis());
-                        notificacion.setContentTitle("Titulo");
-                        notificacion.setContentText("Hay un nuevo registro del CUM!");
-                        Intent intent = new Intent(MainActivity.this,MainActivity.class);
-
-                        PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-                        notificacion.setContentIntent(pendingIntent);
-                        NotificationManager noti = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                        notificacion.setContentTitle("Registro de CUM");
+                        notificacion.setContentText(resultado.getText());
+                        NotificationManagerCompat noti = NotificationManagerCompat.from(getApplicationContext());
                         noti.notify(idunica,notificacion.build());
 
 
